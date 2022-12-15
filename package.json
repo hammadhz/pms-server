@@ -2,9 +2,9 @@
   "name": "profile-management-system",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "nodemon"
+    "start": "node index.js"
   },
   "author": "Hammad",
   "license": "MIT",

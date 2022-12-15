@@ -36,13 +36,6 @@ server.use(cors());
 server.use("/user", userRoute);
 server.use("/auth", authRoute);
 
-if (process.env.NODE_ENV === "production") {
-  server.get("*", (req, res) => {
-    server.use(express.static(path.resolve(__dirname, "client", "build")));
-    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-  });
-}
-
 server.listen(
   process.env.PORT,
   () => `Server is running at port:${process.env.PORT}`
