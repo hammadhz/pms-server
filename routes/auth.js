@@ -11,8 +11,8 @@ authRoute.get(
 authRoute.get(
   "/google/callback",
   passport.authenticate("google", {
-    successRedirect: "http://localhost:3000/user/dashboard",
-    failureRedirect: "http://localhost:3000/",
+    successRedirect: "https://pms-client-nu.vercel.app/user/dashboard",
+    failureRedirect: "https://pms-client-nu.vercel.app/",
   })
 );
 

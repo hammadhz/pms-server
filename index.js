@@ -36,6 +36,10 @@ server.use(cors());
 server.use("/user", userRoute);
 server.use("/auth", authRoute);
 
+server.get("/", (req, res) => {
+  res.send("server running");
+});
+
 server.listen(
   process.env.PORT,
   () => `Server is running at port:${process.env.PORT}`
