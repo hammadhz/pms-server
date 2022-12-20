@@ -1,7 +1,10 @@
 const express = require("express");
 const passport = require("passport");
+const dotenv = require("dotenv");
 
 const authRoute = express.Router();
+
+dotenv.config();
 
 authRoute.get(
   "/google",
@@ -11,8 +14,8 @@ authRoute.get(
 authRoute.get(
   "/google/callback",
   passport.authenticate("google", {
-    successRedirect: "https://pms-client-nu.vercel.app/user/dashboard",
-    failureRedirect: "https://pms-client-nu.vercel.app/",
+    successRedirect: process.env.CLIENT_URL + "/user/dashboard",
+    failureRedirect: process.env.CLIENT_URL,
   })
 );
 
