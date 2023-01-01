@@ -28,11 +28,9 @@ const signup = async (req, res) => {
     .save()
     .then(() => {
       res.status(200).send("User Sign Up Successfully");
-      console.log("User saved");
     })
     .catch((err) => {
       res.status(400).send(err);
-      console.log(err);
     });
 };
 

@@ -7,7 +7,9 @@ const bodyParser = require("body-parser");
 const session = require("express-session");
 const passport = require("passport");
 const authRoute = require("./routes/auth");
+const adminRoute = require("./routes/admin");
 const path = require("path");
+const spUserRoute = require("./routes/spuser");
 
 const server = express();
 
@@ -15,6 +17,7 @@ dotenv.config();
 require("./auth/googleAuth");
 server.use(bodyParser.json());
 server.use(express.urlencoded({ extended: true }));
+server.use("/imgs", express.static(path.join(__dirname, "imgs")));
 
 server.use(
   session({
@@ -35,6 +38,8 @@ connectDb();
 server.use(cors());
 server.use("/user", userRoute);
 server.use("/auth", authRoute);
+server.use("/admin", adminRoute);
+server.use("/spuser", spUserRoute);
 
 server.get("/", (req, res) => {
   res.send("server running");
