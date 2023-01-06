@@ -1,40 +1,51 @@
 const Admin = require("../models/Admin");
-const SpUser = require("../models/Sp-user");
-const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 const bcrypt = require("bcryptjs");
+const createToken = require("../utils/createToken");
+const { addUserValidation } = require("../validation/userValidation");
 
 const adminSignIn = async (req, res) => {
   const { name, password } = req.body;
   const adminCheck = await Admin.findOne({ name: name });
-  console.log(adminCheck);
   //   if (!adminCheck) return res.status(400).send("Admin does'nt Exists!");
   if (adminCheck) {
     if (adminCheck.password !== password) {
       return res.status(400).send("Please Enter Correct Credentails");
     } else {
-      const token = jwt.sign(
-        { _id: adminCheck._id, name: adminCheck.name },
-        process.env.TOKEN_SECRET,
-        { expiresIn: "20s" }
-      );
+      const token = createToken(adminCheck._id, adminCheck.name);
       return res
         .status(200)
         .header("auth-token", token)
-        .send({ token: token, user: adminCheck, message: "Admin Created" });
+        .send({ token: token, message: "Admin Created" });
     }
   }
 };
 
 const adminAddUser = async (req, res) => {
-  const spuser = new SpUser({
-    fullName: req.body.fullName,
+  const validation = addUserValidation(req.body);
+
+  const { error } = validation;
+
+  if (error) return res.status(400).send(error.details[0].message);
+
+  const checkUser = await User.findOne({ email: req.body.email });
+  if (checkUser) return res.status(400).send("Email Already Exists");
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+  const user = new User({
+    name: req.body.name,
     email: req.body.email,
-    password: req.body.password,
+    password: hashedPassword,
+    role: req.body.role,
+    verified: req.body.verified,
   });
-  await spuser
+
+  await user
     .save()
     .then((data) => {
-      res.status(200).send("Special User Created Successfully");
+      res.status(200).send({ message: "Special User Created Successfully" });
     })
     .catch((err) => {
       res.status(400).send(err);
@@ -42,7 +53,7 @@ const adminAddUser = async (req, res) => {
 };
 
 const adminGetUser = async (req, res) => {
-  await SpUser.find()
+  await User.find()
     .then((data) => {
       res.status(200).json(data);
     })
@@ -51,10 +62,4 @@ const adminGetUser = async (req, res) => {
     });
 };
 
-const getAdmin = async (req, res) => {
-  await Admin.find()
-    .then((data) => res.status(200).json(data))
-    .catch((err) => res.status(400).send(err));
-};
-
-module.exports = { adminSignIn, adminAddUser, adminGetUser, getAdmin };
+module.exports = { adminSignIn, adminAddUser, adminGetUser };

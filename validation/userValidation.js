@@ -27,4 +27,20 @@ const signinValidation = (data) => {
   return schema.validate(data);
 };
 
-module.exports = { signinValidation, signupValidation };
+const addUserValidation = (data) => {
+  const schema = Joi.object({
+    name: Joi.string().required(),
+    email: Joi.string().required(),
+    role: Joi.string().required(),
+    verified: Joi.boolean().required(),
+    password: Joi.string()
+      .required()
+      .regex(
+        /^(?=.*?[A-Z])(?=.*?[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,8}$/
+      )
+      .message("Password is not Strong"),
+  });
+  return schema.validate(data);
+};
+
+module.exports = { signinValidation, signupValidation, addUserValidation };
