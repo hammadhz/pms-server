@@ -4,6 +4,7 @@ const {
   signinValidation,
 } = require("../validation/userValidation");
 const bcrypt = require("bcryptjs");
+const createToken = require("../utils/createToken");
 
 const signup = async (req, res) => {
   const validation = signupValidation(req.body);
@@ -23,15 +24,18 @@ const signup = async (req, res) => {
     email: req.body.email.toLowerCase(),
     password: hashedPassword,
   });
+  try {
+    const newUser = await user.save();
 
-  await user
-    .save()
-    .then(() => {
-      res.status(200).send("User Sign Up Successfully");
-    })
-    .catch((err) => {
-      res.status(400).send(err);
-    });
+    const token = createToken(newUser._id, newUser.name, newUser.verified);
+    res
+      .status(200)
+      .header("auth-token", token)
+      .send({ token: token, message: "User Sign Up Successfully" });
+  } catch (err) {
+    res.status(400).send(err);
+    console.log(err);
+  }
 };
 
 const signin = async (req, res) => {
@@ -50,7 +54,14 @@ const signin = async (req, res) => {
 
   if (!passwordCheck)
     return res.status(400).send("Please Enter Correct Credentails");
-  else return res.status(200).send("User Sign In Successfully");
+
+  const token = createToken(dbUser._id, dbUser.name, dbUser.verified);
+
+  res.status(200).header("auth-token", token).send({
+    token: token,
+    user: dbUser,
+    message: "User Signed In Successfully!",
+  });
 };
 
 module.exports = { signin, signup };

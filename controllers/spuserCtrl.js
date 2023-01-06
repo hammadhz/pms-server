@@ -1,6 +1,4 @@
 const Media = require("../models/Media");
-const SpUser = require("../models/Sp-user");
-const jwt = require("jsonwebtoken");
 const Profile = require("../models/Profile");
 
 const addMedia = async (req, res) => {
@@ -14,9 +12,10 @@ const addMedia = async (req, res) => {
     .save()
     .then((data) => {
       res.status(200).send({ message: "Media Saved!" });
+      console.log(data);
     })
     .catch((err) => {
-      res.status(400).send("Media not added");
+      res.status(400).send({ message: "Media not added" });
     });
 };
 
@@ -31,25 +30,6 @@ const getMedia = async (req, res) => {
     });
 };
 
-const signIn = async (req, res) => {
-  const dbUser = await SpUser.findOne({ email: req.body.email });
-  console.log(dbUser);
-  if (!dbUser) return res.status(400).send("User Does'nt Exit");
-
-  if (dbUser.password !== req.body.password)
-    return res.status(400).send("Please Enter Correct Credentails");
-  else console.log("matches");
-
-  const token = jwt.sign(
-    { _id: dbUser._id, name: dbUser.fullName, verified: dbUser.verified },
-    process.env.TOKEN_SECRET
-  );
-  res
-    .status(200)
-    .header("auth-token", token)
-    .send({ token: token, user: dbUser, message: "login done" });
-};
-
 const setProfile = async (req, res) => {
   const profile = new Profile({
     about: req.body.about,
@@ -60,11 +40,10 @@ const setProfile = async (req, res) => {
   await profile
     .save()
     .then((data) => {
-      res.status(200).send("Profile & About Added");
+      res.status(200).send({ message: "Profile & About Added" });
     })
     .catch((err) => {
-      res.status(400).send(err);
-      console.log(err);
+      res.status(400).send({ message: "Profile & About not added" });
     });
 };
 
@@ -79,4 +58,4 @@ const getProfile = async (req, res) => {
     });
 };
 
-module.exports = { addMedia, getMedia, signIn, setProfile, getProfile };
+module.exports = { addMedia, getMedia, setProfile, getProfile };
